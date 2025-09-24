@@ -14,7 +14,7 @@
 #     * Параметры, влияющие на определения передаточной функции: Номинальная уровень (H), площадь сечения клапана (Sk) и площадь поверхности среды (В данном случае контейнера рабочей жидкости)
 # 
 # * По стандартом ГОСТ, известно что неопреденность в
-#     * Измерении уровня: +/- 10мм
+#     * Измерении уровня: +/- 3мм
 #     * Измерении площади: 5% измеренного значения 
 # * Значения этих параметров: 
 #     * Номинальная уровень: 700мм = 0,7м
@@ -27,7 +27,7 @@
 # **В этом проекте будет вычислена общая неопределлность в определении передаточной функции объекта управления методом Монте-Карло**
 # 
 
-# In[2]:
+# In[3]:
 
 
 # Library imports
@@ -39,14 +39,14 @@ import math
 # ## 1. Генерация массивов
 # 
 
-# In[4]:
+# In[5]:
 
 
 # Put in a random seed 
 np.random.seed(9)
 # Generate an array of 1000 uniformly distributed random numbers between min. and max. values of nominal height
-# Min. value of height = 690mm = 0.69m, max. value of height = 710mm = 0.71m
-liquid_level_array = np.random.uniform(0.69, 0.71, 1000)
+# Min. value of height = 690mm = 0.697m, max. value of height = 703mm = 0.703m
+liquid_level_array = np.random.uniform(0.697, 0.703, 1000)
 # Generate an array of 1000 uniformly distributed random numbers between min. and max. value of valve cross-section
 # Min. and max. values of valve cross-section are: 1.0735m2 and 1.1865m2
 valve_area_array = np.random.uniform(1.0735, 1.1865, 1000)
@@ -57,7 +57,7 @@ tank_area_array = np.random.uniform(34.2, 37.8, 1000)
 
 # ## 2. Вычисление неопределенности в коэффициенте передачи передаточной функции
 
-# In[6]:
+# In[7]:
 
 
 # Formula to calculate coefficient K: 2H/Sk (H=Nominal height, Sk= Valve cross-section)
@@ -80,7 +80,7 @@ def error_in_transfer_coeff(height_array, cross_section_array):
     return(np.max(k_vals_diff_array))
 
 
-# In[7]:
+# In[8]:
 
 
 # Use this function with height array and valve area array for the parameters of GPN-PID
@@ -89,7 +89,7 @@ print(f"The error in measuring the transfer coefficient of the transfer function
 
 # ## 3. Вычисление неопределенности в определении посстоянной времени
 
-# In[9]:
+# In[10]:
 
 
 # Define a function to calculate the error in measuring the time constant
@@ -114,7 +114,7 @@ def error_in_time_constant(height_array, valve_area_array, tank_area_array):
     
 
 
-# In[10]:
+# In[11]:
 
 
 # Calculate the error in time constant measurement for T/F in GPN-PID
@@ -139,7 +139,7 @@ print(f"The error in measuring the time constant of the transfer function of liq
 #                                                                       `delta_Sп = 1.8m2`
 # * Потом вычислим параметр масштаба массива выходных значения `d_delta_k_array` и `d_delta_T_array`
 
-# In[13]:
+# In[14]:
 
 
 # Time to generate the random numbers as per Cauchy distribution
@@ -166,7 +166,7 @@ for i in range(0,300):
     cauchy_tank_area_array[i] = Sp + k*np.tan(math.pi*(z[i]-0.5))
 
 
-# In[14]:
+# In[15]:
 
 
 # Calculate time constant and transfer coefficient for each value of the three arrays
@@ -180,7 +180,7 @@ for i in range(0,300):
     time_constant_array[i] = ((np.sqrt(2*cauchy_height_array[i]/9.8))*(cauchy_tank_area_array[i]/cauchy_valve_area_array[i]))
 
 
-# In[15]:
+# In[16]:
 
 
 # Calculate the differentials
@@ -191,13 +191,13 @@ for i in range(0,300):
     delta_T_array[i] = abs(12.04-time_constant_array[i])
 
 
-# In[16]:
+# In[17]:
 
 
 np.max(delta_k_array), np.max(delta_T_array)
 
 
-# In[17]:
+# In[18]:
 
 
 def bisection_method_calculation (array, N, start_point, end_point):
@@ -223,7 +223,7 @@ def bisection_method_calculation (array, N, start_point, end_point):
     return(sum1-N/2, sum2-N/2, sum3-N/2)
 
 
-# In[18]:
+# In[19]:
 
 
 def bisection_method_logic(array, N, start_point, end_point):
@@ -301,13 +301,13 @@ def bisection_method_logic(array, N, start_point, end_point):
         
 
 
-# In[19]:
+# In[20]:
 
 
 bisection_method_logic(delta_T_array, 300, 0, 1)
 
 
-# In[34]:
+# In[21]:
 
 
 bisection_method_logic(delta_k_array, 300, 0, 1)
